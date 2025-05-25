@@ -1,4 +1,4 @@
-## 🛰️WiFi Info Generator📡
+## 🛰️WiFi Info Generator📡##
 
 Generate QR codes that allow quick and easy connection to WiFi networks by simply scanning the code with a mobile device.
 
