@@ -1,11 +1,10 @@
-## 🛰️WiFi Info Generator📡##
+## 🛰️WiFi Info Generator📡
 
 Generate QR codes that allow quick and easy connection to WiFi networks by simply scanning the code with a mobile device.
 
 ---
-# 🚀 Live Demo
-
-Try the app live here:  
+# 🚀Try the app live here: 
+ 
 [🛰️WiFi Info Generator📡](https://anik16298.github.io/Fancy_WiFi_Card_Generator-Details_Hide_Mode/)
 
 ---
