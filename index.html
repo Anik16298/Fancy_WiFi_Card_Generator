@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>WiFi QR Code Generator</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: linear-gradient(135deg, #0093E9, #80D0C7);
+      color: #fff;
+      margin: 0;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 600px;
+      padding: 0 20px 40px;
+      border-radius: 12px;
+      box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+      background: rgba(255 255 255 / 0.1);
+      box-sizing: border-box;
+    }
+
+    h1 {
+      text-align: center;
+      font-weight: 600;
+      margin-bottom: 0.8em;
+      text-shadow: 0 2px 6px rgba(0,0,0,0.6);
+    }
+
+    label {
+      display: block;
+      margin-top: 15px;
+      font-weight: 600;
+      text-shadow: 0 1px 3px rgba(0,0,0,0.4);
+    }
+
+    input, select {
+      width: 100%;
+      padding: 12px 15px;
+      margin-top: 6px;
+      border-radius: 8px;
+      border: none;
+      font-size: 1em;
+      box-sizing: border-box;
+      outline: none;
+      transition: box-shadow 0.3s ease;
+      color: #333;
+    }
+
+    input:focus, select:focus {
+      box-shadow: 0 0 12px #ff9a9e;
+    }
+
+    button {
+      width: 100%;
+      margin-top: 20px;
+      background: linear-gradient(90deg, #ff9a9e 0%, #fad0c4 100%);
+      border: none;
+      color: #333;
+      font-weight: 700;
+      font-size: 1.1em;
+      padding: 14px 0;
+      border-radius: 30px;
+      cursor: pointer;
+      box-shadow: 0 5px 15px rgba(255, 154, 158, 0.6);
+      transition: background 0.4s ease;
+    }
+
+    button:hover {
+      background: linear-gradient(90deg, #fad0c4 0%, #ff9a9e 100%);
+    }
+
+    button:disabled {
+      cursor: not-allowed;
+      background: #ddd;
+      color: #999;
+      box-shadow: none;
+    }
+
+    #modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.6);
+      backdrop-filter: blur(6px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 24px;
+    }
+
+    #modal.active {
+      display: flex;
+      animation: fadeIn 0.3s ease forwards;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    #modal-content {
+      background: #fff;
+      border-radius: 16px;
+      max-width: 480px;
+      width: 100%;
+      padding: 20px 40px 36px;
+      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+      position: relative;
+      text-align: center;
+      transform: scale(0.95);
+      opacity: 0;
+      animation: scaleUp 0.3s ease forwards;
+      user-select: none;
+    }
+
+    @keyframes scaleUp {
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    #modal-title {
+      font-weight: 700;
+      font-size: 2.25rem;
+      color: #4a148c;
+      margin: 0 0 24px;
+    }
+
+    #modal-close {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      background: #eee;
+      border-radius: 50%;
+      width: 38px;
+      height: 38px;
+      border: none;
+      font-size: 1.8rem;
+      color: #4a148c;
+      cursor: pointer;
+      padding: 0;
+      line-height: 38px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #modal-close:hover {
+      background: #4a148c;
+      color: #fff;
+    }
+
+    #qrcode-modal {
+      width: 280px;
+      height: 280px;
+      margin: 0 auto 36px;
+      background: #fafafa;
+      border-radius: 24px;
+      box-shadow: 0 15px 40px rgba(74, 20, 140, 0.15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 3px solid #4a148c;
+    }
+
+    #wifi-info-modal {
+      font-weight: 600;
+      font-size: 1.2rem;
+      color: #333;
+      white-space: pre-wrap;
+      margin-bottom: 36px;
+      user-select: text;
+    }
+
+    #modal-buttons {
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+    }
+
+    #copy-btn, #print-btn {
+      flex: 1;
+      font-weight: 700;
+      font-size: 1.1rem;
+      padding: 14px 0;
+      border: none;
+      border-radius: 30px;
+      cursor: pointer;
+      color: #fff;
+      box-shadow: 0 6px 20px rgba(74, 20, 140, 0.4);
+    }
+
+    #copy-btn {
+      background: linear-gradient(90deg, #6a1b9a 0%, #8e24aa 100%);
+    }
+
+    #copy-btn:hover {
+      background: linear-gradient(90deg, #8e24aa 0%, #6a1b9a 100%);
+    }
+
+    #print-btn {
+      background: linear-gradient(90deg, #e64a19 0%, #f4511e 100%);
+    }
+
+    #print-btn:hover {
+      background: linear-gradient(90deg, #f4511e 0%, #e64a19 100%);
+    }
+
+    @media print {
+      body * {
+        visibility: hidden;
+      }
+
+      #modal, #modal * {
+        visibility: visible;
+      }
+
+      #modal {
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+        position: fixed;
+        inset: 0;
+        height: 100vh;
+        background: white !important;
+        color: #000 !important;
+        padding: 0;
+        margin: 0;
+        box-shadow: none;
+        backdrop-filter: none;
+      }
+
+      #modal-content {
+        box-shadow: none;
+        border-radius: 0;
+        padding: 30mm;
+        max-width: 180mm;
+        width: 100%;
+        text-align: center;
+        transform: none !important;
+        opacity: 1 !important;
+      }
+
+      #modal-close, #copy-btn, #print-btn, #wifi-info-modal {
+        display: none !important;
+      }
+
+      #qrcode-modal {
+        margin: 0 auto;
+        width: 120mm;
+        height: 120mm;
+        box-shadow: none;
+        background: transparent;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🛰️WiFi Info Generator📡</h1>
+    <label for="ssid">WiFi SSID (Network Name):</label>
+    <input type="text" id="ssid" placeholder="WiFi name" autocomplete="off" />
+    <label for="encryption">Encryption Type:</label>
+    <select id="encryption">
+      <option value="WPA">WPA/WPA2</option>
+      <option value="WEP">WEP</option>
+      <option value="nopass">None</option>
+    </select>
+    <label for="password">Password:</label>
+    <input type="text" id="password" placeholder="WiFi password" autocomplete="off" />
+    <button id="generate-btn">Generate WiFi QR Code</button>
+  </div>
+
+  <div id="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title" aria-describedby="wifi-info-modal" tabindex="-1">
+    <div id="modal-content" role="document">
+      <button id="modal-close" aria-label="Close popup">&times;</button>
+      <h2 id="modal-title">Your WiFi QR Code</h2>
+      <div id="qrcode-modal" aria-hidden="true"></div>
+      <pre id="wifi-info-modal"></pre>
+      <div id="modal-buttons">
+        <button id="copy-btn" type="button">Copy WiFi Info</button>
+        <button id="print-btn" type="button">Print A4</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+  <script>
+    const ssidInput = document.getElementById('ssid');
+    const encryptionSelect = document.getElementById('encryption');
+    const passwordInput = document.getElementById('password');
+    const generateBtn = document.getElementById('generate-btn');
+    const modal = document.getElementById('modal');
+    const modalCloseBtn = document.getElementById('modal-close');
+    const qrcodeModal = document.getElementById('qrcode-modal');
+    const wifiInfoModal = document.getElementById('wifi-info-modal');
+    const copyBtn = document.getElementById('copy-btn');
+    const printBtn = document.getElementById('print-btn');
+
+    generateBtn.addEventListener('click', () => {
+      const ssid = ssidInput.value.trim();
+      const encryption = encryptionSelect.value;
+      const password = passwordInput.value;
+
+      if (!ssid) {
+        alert('Please enter the WiFi SSID.');
+        return;
+      }
+
+      if (encryption !== 'nopass' && !password) {
+        alert('Please enter the password for your WiFi.');
+        return;
+      }
+
+      // Generate dummy QR data
+      const qrData = 'Scan to connect to WiFi';
+
+      // Real credentials saved for clipboard
+      const passwordDisplay = encryption === 'nopass' ? '[None]' : password;
+      const hiddenWiFiInfo = `WiFi Name (SSID): ${ssid}\nPassword: ${passwordDisplay}`;
+
+      // Show QR and modal
+      qrcodeModal.innerHTML = '';
+      wifiInfoModal.textContent = ''; // hide on screen
+      modal.classList.add('active');
+      modal.querySelector('#modal-content').focus();
+
+      new QRCode(qrcodeModal, {
+        text: qrData,
+        width: 260,
+        height: 260,
+        colorDark : "#4a148c",
+        colorLight : "#f3e5f5",
+        correctLevel : QRCode.CorrectLevel.H
+      });
+
+      copyBtn.dataset.info = hiddenWiFiInfo; // enable copy button
+    });
+
+    modalCloseBtn.addEventListener('click', () => {
+      modal.classList.remove('active');
+      qrcodeModal.innerHTML = '';
+      wifiInfoModal.textContent = '';
+    });
+
+    window.addEventListener('click', e => {
+      if (e.target === modal) {
+        modal.classList.remove('active');
+        qrcodeModal.innerHTML = '';
+        wifiInfoModal.textContent = '';
+      }
+    });
+
+    window.addEventListener('keydown', e => {
+      if (e.key === 'Escape' && modal.classList.contains('active')) {
+        modal.classList.remove('active');
+        qrcodeModal.innerHTML = '';
+        wifiInfoModal.textContent = '';
+      }
+    });
+
+    copyBtn.addEventListener('click', () => {
+      const textToCopy = copyBtn.dataset.info || '';
+      if (!textToCopy) return;
+
+      navigator.clipboard.writeText(textToCopy).then(() => {
+        copyBtn.textContent = 'Copied!';
+        setTimeout(() => {
+          copyBtn.textContent = 'Copy WiFi Info';
+        }, 1500);
+      }).catch(() => {
+        alert('Failed to copy, please try manually.');
+      });
+    });
+
+    printBtn.addEventListener('click', () => {
+      window.print();
+    });
+  </script>
+</body>
+</html>
